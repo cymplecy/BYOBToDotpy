@@ -61,16 +61,20 @@ while True:
         elif "#" in item:
             dotpy += addindent("#" + str(item[1]) + "\n")
         elif 'defstart' in item:
-            dotpy += "\n" + addindent("def" + str(item[1]) + "(")
+            dotpy += "\n" + addindent("def " + str(item[1]) + "(")
             for loop in item[2:]:
                 if loop != "defstart":
                     dotpy += str(loop) + ","
             dotpy = dotpy.rstrip(",")
-            dotpy += ")\n"
+            dotpy += "):\n"
             indent += 1
         elif ("pythonstart" not in item ) and ("pythonend" not in item ) and ("defstart" not in item ):
             if len(item) > 1:
-                dotpy += addindent(str(item[0]) + str(item[1]) + "\n")
+                dotpy += addindent(str(item[0]))
+                for loop in item[1:]:
+                    dotpy += str(loop) + ","
+                dotpy = dotpy.rstrip(",")
+                dotpy +="\n"
 
         print
         print "dotpy.y\n\n",dotpy
