@@ -9,5 +9,8 @@ print("Count to 10")
 # Python stops the loop when loop = 11
 for loop in range(1 ,11):
     showcount(loop,1)
-print("Finished")
+if True:
+    print("Finished")
+else:
+    print("Not Finished")
 

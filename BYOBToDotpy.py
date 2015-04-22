@@ -46,10 +46,16 @@ while True:
         elif 'while' in item:
             dotpy += addindent("while " + str(item[1]) + ":\n")
             indent += 1
+        elif 'if' in item:
+            dotpy += addindent("if " + str(item[1]) + ":\n")
+            indent += 1
+        elif 'else' in item:
+            dotpy += addindent("else:\n")
+            indent += 1
         elif 'forstart' in item:
             dotpy += addindent("for " + str(item[1]) + " in range(" +str(item[2]) +" ," +str(item[3]) +"):\n")
             indent += 1
-        elif ('forend' in item) :
+        elif ('forend' in item) or ("ifend" in item) or ("elseend" in item) or ("elifend" in item):
             indent -= 1
         elif('defend' in item) :
             indent -= 1
