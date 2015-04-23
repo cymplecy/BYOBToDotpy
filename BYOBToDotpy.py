@@ -1,4 +1,6 @@
 import scratch
+
+
 s = scratch.Scratch(host='127.0.0.1', port=42001)
 
 def listen():
@@ -15,14 +17,40 @@ def addindent(line):
             line = "    " + line
     return line
 
+def parse(broadcast):
+    final = []
+    listitem = ''
+    ignore = False
+    broadcastsplit = list(broadcast)
+    for char in broadcastsplit:
+        if char == "(":
+            ignore = True
+        if char == ")":
+            ignore = False
+        if not ignore:
+            if char == ",":
+                final.append(listitem)
+                listitem = ''
+            else:
+                listitem += char
+        else:
+            listitem += char
+        print listitem
+    final.append(listitem)
+    return final
+
+
+
 #s.broadcast("Hello, Scratch!")
 #print "rcv",s.receive()
 while True:
     masterlist = []
+    breaklevel = 0
     for msg in listen():
         print msg
         if msg[0] == 'broadcast':
-            inputlist = msg[1].split(',')
+            inputlist = parse(msg[1])
+            print "msg",msg[1]
             print inputlist
             masterlist.append(inputlist)
             if inputlist[0] == "pythonend":
@@ -52,10 +80,24 @@ while True:
         elif 'else' in item:
             dotpy += addindent("else:\n")
             indent += 1
-        elif 'forstart' in item:
-            dotpy += addindent("for " + str(item[1]) + " in range(" +str(item[2]) +" ," +str(item[3]) +"):\n")
+        elif 'trystart' in item:
+            dotpy += addindent("try:\n")
             indent += 1
-        elif ('forend' in item) or ("ifend" in item) or ("elseend" in item) or ("elifend" in item):
+        elif 'exceptstart' in item:
+            dotpy += addindent("except: " + str(item[1]) + ":\n")
+            indent += 1
+        elif 'forstart' in item:
+            breaklevel = indent
+            if len(item) > 3:
+                dotpy += addindent("for " + str(item[1]) + " in range(" +str(item[2]) +" ," +str(item[3]) +"):\n")
+            else:
+                dotpy += addindent("for " + str(item[1]) + " in range(" +str(item[2]) +"):\n")
+            indent += 1
+        elif 'for2start' in item:
+            breaklevel = indent
+            dotpy += addindent("for " + str(item[1]) + " in " +str(item[2]) +":\n")
+            indent += 1
+        elif  ('unindent' in item) or('forend' in item) or ("ifend" in item) or ("elseend" in item) or ("elifend" in item) or ("tryend" in item) or ("exceptend" in item):
             indent -= 1
         elif('defend' in item) :
             indent -= 1
@@ -74,6 +116,14 @@ while True:
             dotpy = dotpy.rstrip(",")
             dotpy += "):\n"
             indent += 1
+        elif ('yield' in item) or ('raise' in 'item') or ('global' in 'item') or ('return' in 'item'):
+            dotpy += addindent(str(item[0]) + " " + str(item[1]) + ":\n")
+        elif ('break' in item):
+            dotpy += addindent(str(item[0]) + ":\n")
+            indent = breaklevel
+        elif ("plaintext" in item ):
+            dotpy += addindent(str(item[1])) + "\n"
+
         elif ("pythonstart" not in item ) and ("pythonend" not in item ) and ("defstart" not in item ):
             if len(item) > 1:
                 dotpy += addindent(str(item[0]))
@@ -85,6 +135,7 @@ while True:
         print
         print "dotpy.y\n\n",dotpy
         print
+        print "indent level", indent,breaklevel
 
 
 
